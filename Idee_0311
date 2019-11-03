@@ -1,0 +1,28 @@
+idee:
+1.system structure:
+  event driven struture
+2.event driven struture:
+  event
+    |
+  queue
+    |
+  event mediater/分发--------
+    |                       |
+  event handler 1       event handler 2 ...
+  
+  
+3.event:
+  +user triggered:
+    +friend request
+    +communication:
+      +want join group
+      +want get contact through serialID/索引号---->create new small chat group event
+      +learn about this robot                                     |
+      +other functions                                            |
+                                                                  |
+  +group triggered:                                               |
+    +automatic share info                                         |
+    +occationally spread info/宣讲                                |
+    +user misbehavior                                             |
+    +build small group---------------------------------------------                                            
+    +group expire <--|new group expire event/caused by timeout or keyword
