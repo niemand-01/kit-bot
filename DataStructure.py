@@ -1,5 +1,24 @@
-import time 
+import time
+import re
+"""
+    流程：1.上一层接口返回分析好的用户内容信息ip
+          2.初始化一个数据类型
+          3.将此数据加入一个数据库
 
+
+
+          如果有用户需求这个数据，比如：
+          1.请求数据通过serialnum
+          2.请求最近帮带信息
+          3.请求推荐帮带信息
+          4.
+    """
+#########
+zufang_bank = 0
+ershou_bank = 1
+bangdai_bank = 2 
+ianzhi_bank = 3
+#########
 class EventData:
     DataType = ['zufang','ershou','bangdai','jianzhi']
     def __init__(self):
@@ -224,7 +243,74 @@ class HouseData(EventData):
         #check if input info concludes the required parameter
         print('start checking completality')
 
+
+class InfoBank:
+    #注意，加入infobank的不是单纯的dict而是类HouseData
+    #dict访问是[]
+    #类的访问是.
+    DataType = ['zufang','ershou','bangdai','jianzhi']
+    timeout = 1296000 #15days
+    def __init__(self):
+        self.zufang_bank = []
+        self.ershou_bank = []
+        self.bangdai_bank = []
+        self.jianzhi_bank = []
+        self.bank_sum = [self.zufang_bank,self.ershou_bank,self.bangdai_bank,self.jianzhi_bank]
+
+    def add(self,data_stru):
+        for idx in range(len(self.DataType)):
+            if self.DataType[idx] == data_stru.EventType:
+                self.bank_sum[idx].append(data_stru)
+
+    # delete method
+    def delete_with_serial(self,serial_,bank):
+        for itm in self.bank_sum[bank]:
+            if itm.SerialNumber == serial_:
+                self.bank_sum[bank].remove(itm)
+                
+    def delete_if_out(self):
+        #automatically search for the item with if_out
+        for bank in self.bank_sum:
+            for itm in bank:
+                if itm.is_out:
+                    bank.remove(itm)
+                    
+    def delete_with_timeout(self):
+        #automatically search for the item with time eclapsed
+        current_Time  = time.time() 
+        for bank in self.bank_sum:
+            for itm in bank:
+                if current_Time - itm.ReleaseTime > timeout:
+                    bank.remove(itm)
+
+    
+    #get method
+    def get_latest_post(self,itm_num,bank):
+        bk = self.bank_sum[bank]
+        #既然是先后加的那么后加的一定最先
+        return bk[len(bk)-itm_num:]
+
+    def get_info_with_serial(self,serial_):
+        #methodes:1.brainless loop 2.classify serial_ 3.jump with time difference
+        match = re.match(r"(?P<art>\w+)_(?P<time>\w+)",serial_)
+        bk_name = match.group('art')
+        time = match.group('time')
+        for idx in range(len(self.DataType)):
+            if self.DataType[idx] == bk_name:
+                for itm in DataType[idx]:
+                    if itm.SerialNumber == serial_:
+                        return itm.ObjectInfo
+                
+
+
 if __name__ == '__main__':
+    t1 = 'bangdai_12233'
+    print(re.match(r".+_(?P<time>\w+)",t1).group('time'))
+
+    
+
+
+    
     ip = {'info_type':'bangdai',
           'info':{
             'house_name':'11',
